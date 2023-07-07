@@ -122,3 +122,11 @@ The delegator may also burn their tokens and get their lovelace back.
 This will burn 123456789 "lovelace" from their wallet and will unlock 123456789 lovelace from the lock contract.
 
 Now with many lock contracts, many delegators may place their ada into the lock contract in exchange for the token. The DAO will now control the staking power of the locked lovelace but the delegators control their buying power with their "lovelace" token. At any time, delegators may return to retrieve their lovelace from the contract and regain control of their staking power.
+
+# Threshold-Based Actions
+
+Now that users have the "lovelace", they may act on the behalf of the DAO with the available threshold-based actions. Each action requires a certain amount of the "lovelace" to be inside the transaction, proving that the user(s) has/have enough contribution to be able to act.
+
+## NFT Minting
+
+An NFT is allowed to be minted or burned if and only if the transaction contains inputs that hold a minimum amount of "lovelace". The user(s) that create this transaction may do as they please with the NFT.
