@@ -1,0 +1,19 @@
+name = "aiken-lang/distributed_representation"
+version = "0.1.0"
+license = "Apache-2.0"
+description = "Aiken contracts for project 'aiken-lang/distributed_representation'"
+
+[repository]
+user = "aiken-lang"
+project = "distributed_representation"
+platform = "github"
+
+[[dependencies]]
+name = "aiken-lang/stdlib"
+version = "main"
+source = "github"
+
+[[dependencies]]
+name = "logicalmechanism/assist"
+version = "main"
+source = "github"
