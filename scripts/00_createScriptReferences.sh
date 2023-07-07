@@ -254,7 +254,7 @@ vault_min_utxo=$(${cli} transaction calculate-min-required-utxo \
 
 vault_value=$((${vault_min_utxo}))
 vault_script_reference_utxo="${script_reference_address} + ${vault_value}"
-echo -e "\nCreating Lock Script:\n" ${vault_script_reference_utxo}
+echo -e "\nCreating Vault Script:\n" ${vault_script_reference_utxo}
 
 echo -e "\033[0;36m Building Tx \033[0m"
 ${cli} transaction build-raw \
@@ -293,7 +293,7 @@ ${cli} transaction sign \
 ###############################################################################
 
 nextUTxO=$(${cli} transaction txid --tx-body-file ./tmp/tx.draft)
-echo "Fourth in the tx chain" $nextUTxO
+echo "Fifth in the tx chain" $nextUTxO
 
 nft_min_utxo=$(${cli} transaction calculate-min-required-utxo \
     --babbage-era \
@@ -303,7 +303,7 @@ nft_min_utxo=$(${cli} transaction calculate-min-required-utxo \
 
 nft_value=$((${nft_min_utxo}))
 nft_script_reference_utxo="${script_reference_address} + ${nft_value}"
-echo -e "\nCreating Lock Script:\n" ${nft_script_reference_utxo}
+echo -e "\nCreating NFT Script:\n" ${nft_script_reference_utxo}
 
 echo -e "\033[0;36m Building Tx \033[0m"
 ${cli} transaction build-raw \

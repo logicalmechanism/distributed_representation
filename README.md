@@ -129,4 +129,5 @@ Now that users have the "lovelace", they may act on the behalf of the DAO with t
 
 ## NFT Minting
 
-An NFT is allowed to be minted or burned if and only if the transaction contains inputs that hold a minimum amount of "lovelace". The user(s) that create this transaction may do as they please with the NFT.
+An NFT is allowed to be minted or burned if and only if the transaction contains inputs that hold a minimum amount of "lovelace". The user(s) that create this transaction may do as they please with the NFT. Each NFT is prefixed with "TheDAO".
+
