@@ -12,7 +12,7 @@ use assist/payout
 use assist/signing
 use assist/values
 use distributed_representation/types.{
-  AddToVault, DAODatum, SubtractFromVault, VaultRedeemer,
+  AddToVault, DAODatum, SubFromVault, VaultRedeemer,
 }
 
 validator(starter_pid: ByteArray, starter_tkn: ByteArray, dao_hash_data: Data) {
@@ -53,7 +53,7 @@ validator(starter_pid: ByteArray, starter_tkn: ByteArray, dao_hash_data: Data) {
             )
           }
 
-          SubtractFromVault { sub_amt } -> {
+          SubFromVault { sub_amt } -> {
             let cont_value =
               value.add(
                 this_value,

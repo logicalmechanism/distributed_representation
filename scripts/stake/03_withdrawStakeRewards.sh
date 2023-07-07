@@ -34,12 +34,13 @@ if [ "${TXNS}" -eq "0" ]; then
    exit;
 fi
 alltxin=""
-TXIN=$(jq -r --arg alltxin "" 'to_entries[] | .key | . + $alltxin + " --tx-in"' ../tmp/script_utxo.json)
+TXIN=$(jq -r --arg alltxin "" 'to_entries[] | select(.value.inlineDatum != null) | .key | . + $alltxin + " --tx-in"' ../tmp/script_utxo.json)
 vault_tx_in=${TXIN::-8}
-
 echo Vault TxId: $vault_tx_in
-lovelace_value=$(jq -r '.[].value.lovelace' ../tmp/script_utxo.json)
 
+# exit
+
+lovelace_value=$(jq -r 'to_entries[] | select(.value.inlineDatum != null) | .value.value.lovelace' ../tmp/script_utxo.json)
 # find rewards
 rewardBalance=$(${cli} query stake-address-info \
     --testnet-magic ${testnet_magic} \

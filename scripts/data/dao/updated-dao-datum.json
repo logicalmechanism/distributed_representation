@@ -33,12 +33,6 @@
             "fields": [
               {
                 "bytes": "8ffb4c8e648c0662f2a91157c92feaa95f1a3d2728eaea8257b3d8d9"
-              },
-              {
-                "bytes": "652a7a8fa34d3e5d9b3d852ce9ed486068cffa0ee75f6ab86f2ef164"
-              },
-              {
-                "bytes": ""
               }
             ]
           }
@@ -54,7 +48,7 @@
                   "bytes": "7374616b696e67"
                 },
                 "v": {
-                  "bytes": "311983c3bfa4695758955562c3fec2b22a3f489b3c92ec5e22bbdbd0"
+                  "bytes": "6d4b37a8ea22995abc17c6a43fcea01a7919a614460dcc8d67c1e344"
                 }
               },
               {
@@ -71,6 +65,23 @@
                 },
                 "v": {
                   "bytes": "e4ab69e724cedd0019725d0b1c822744021c386b3c420860cb1f48b2"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "k": {
+            "bytes": "7468726573686f6c6473"
+          },
+          "v": {
+            "map": [
+              {
+                "k": {
+                  "bytes": "6d696e745f7468726573686f6c64"
+                },
+                "v": {
+                  "int": 1000000
                 }
               }
             ]

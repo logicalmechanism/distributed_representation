@@ -102,7 +102,7 @@ Inside the `mint` folder are all the scripts for creating the lock UTxO and mint
 Use the `starter` wallet and start the lock contract.
 
 ```bash
-./01_startLock.sh
+./01_createLockUTxO.sh
 ```
 
 The `delegator` wallet can be used to mint and burn tokens. The tokens are one-to-one with lovelace.

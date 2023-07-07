@@ -47,11 +47,12 @@ if [ "${TXNS}" -eq "0" ]; then
    exit;
 fi
 alltxin=""
-TXIN=$(jq -r --arg alltxin "" 'to_entries[] | .key | . + $alltxin + " --tx-in"' ../tmp/script_utxo.json)
+TXIN=$(jq -r --arg alltxin "" 'to_entries[] | select(.value.inlineDatum != null) | .key | . + $alltxin + " --tx-in"' ../tmp/script_utxo.json)
 script_tx_in=${TXIN::-8}
 
 echo $script_tx_in
-lovelace_value=$(jq -r '.[].value.lovelace' ../tmp/script_utxo.json)
+lovelace_value=$(jq -r 'to_entries[] | select(.value.inlineDatum != null) | .value.value.lovelace' ../tmp/script_utxo.json)
+
 
 min_utxo=$((${lovelace_value} - ${add_amt}))
 

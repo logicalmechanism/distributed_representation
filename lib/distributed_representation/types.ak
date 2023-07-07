@@ -17,6 +17,18 @@ pub type ValidatorHash =
   Hash<Blake2b_224, Script>
 
 // Contract types
+pub type Thresholds =
+  Dict<ByteArray, Int>
+
+// find a threshold by some key inside the thresholds dictionary.
+pub fn find_threshold(thresholds: Thresholds, key: ByteArray) -> Int {
+  when dict.get(thresholds, key) is {
+    Some(amt) -> amt
+    None -> error @"Threshold Not Found"
+  }
+}
+
+// Contract types
 pub type Contracts =
   Dict<ByteArray, ValidatorHash>
 
@@ -82,5 +94,5 @@ pub type MintRedeemer {
 // Vault Information
 pub type VaultRedeemer {
   AddToVault { add_amt: Int }
-  SubtractFromVault { sub_amt: Int }
+  SubFromVault { sub_amt: Int }
 }
