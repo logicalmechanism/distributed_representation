@@ -16,6 +16,11 @@ dao_script_address=$(${cli} address build --payment-script-file ${dao_script_pat
 lock_script_path="../contracts/lock_contract.plutus"
 lock_script_address=$(${cli} address build --payment-script-file ${lock_script_path} --stake-script-file ${stake_script_path} --testnet-magic ${testnet_magic})
 
+# vault contract
+vault_script_path="../contracts/vault_contract.plutus"
+vault_script_address=$(${cli} address build --payment-script-file ${vault_script_path} --stake-script-file ${stake_script_path} --testnet-magic ${testnet_magic})
+
+
 ${cli} query protocol-parameters --testnet-magic ${testnet_magic} --out-file ./tmp/protocol.json
 ${cli} query tip --testnet-magic ${testnet_magic} | jq
 ${cli} query tx-mempool info --testnet-magic ${testnet_magic} | jq

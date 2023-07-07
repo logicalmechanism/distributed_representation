@@ -1,4 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
+
 use aiken/dict.{Dict}
 use aiken/hash.{Blake2b_224, Hash}
 use aiken/transaction/credential.{PoolId, Script, VerificationKey}
@@ -78,4 +79,10 @@ pub type StakeRedeemer {
 pub type MintRedeemer {
   MintTokens { mint_amt: Int }
   BurnTokens { burn_amt: Int }
+}
+
+// Vault Information
+pub type VaultRedeemer {
+  AddToVault { add_amt: Int }
+  SubtractFromVault { sub_amt: Int }
 }

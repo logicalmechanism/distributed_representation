@@ -14,6 +14,8 @@ dao_script_path="../contracts/dao_contract.plutus"
 stake_script_path="../contracts/stake_contract.plutus"
 mint_script_path="../contracts/mint_contract.plutus"
 lock_script_path="../contracts/lock_contract.plutus"
+vault_script_path="../contracts/vault_contract.plutus"
+
 
 # Addresses
 reference_address=$(cat ./wallets/reference-wallet/payment.addr)
@@ -240,6 +242,55 @@ ${cli} transaction sign \
 
 ###############################################################################
 
+nextUTxO=$(${cli} transaction txid --tx-body-file ./tmp/tx.draft)
+echo "Fourth in the tx chain" $nextUTxO
+
+vault_min_utxo=$(${cli} transaction calculate-min-required-utxo \
+    --babbage-era \
+    --protocol-params-file ./tmp/protocol.json \
+    --tx-out-reference-script-file ${vault_script_path} \
+    --tx-out="${script_reference_address} + 1000000" | tr -dc '0-9')
+
+vault_value=$((${vault_min_utxo}))
+vault_script_reference_utxo="${script_reference_address} + ${vault_value}"
+echo -e "\nCreating Lock Script:\n" ${vault_script_reference_utxo}
+
+echo -e "\033[0;36m Building Tx \033[0m"
+${cli} transaction build-raw \
+    --babbage-era \
+    --protocol-params-file ./tmp/protocol.json \
+    --out-file ./tmp/tx.draft \
+    --tx-in="${nextUTxO}#0" \
+    --tx-out="${reference_address} + ${fourthReturn}" \
+    --tx-out="${vault_script_reference_utxo}" \
+    --tx-out-reference-script-file ${vault_script_path} \
+    --fee 900000
+
+FEE=$(${cli} transaction calculate-min-fee --tx-body-file ./tmp/tx.draft --testnet-magic ${testnet_magic} --protocol-params-file ./tmp/protocol.json --tx-in-count 0 --tx-out-count 0 --witness-count 1)
+# echo $FEE
+fee=$(echo $FEE | rev | cut -c 9- | rev)
+
+fifthReturn=$((${fourthReturn} - ${vault_value} - ${fee}))
+
+${cli} transaction build-raw \
+    --babbage-era \
+    --protocol-params-file ./tmp/protocol.json \
+    --out-file ./tmp/tx.draft \
+    --tx-in="${nextUTxO}#0" \
+    --tx-out="${reference_address} + ${fifthReturn}" \
+    --tx-out="${vault_script_reference_utxo}" \
+    --tx-out-reference-script-file ${vault_script_path} \
+    --fee ${fee}
+
+echo -e "\033[0;36m Signing \033[0m"
+${cli} transaction sign \
+    --signing-key-file ./wallets/reference-wallet/payment.skey \
+    --tx-body-file ./tmp/tx.draft \
+    --out-file ./tmp/tx-5.signed \
+    --testnet-magic ${testnet_magic}
+
+###############################################################################
+
 #
 # exit
 #
@@ -260,11 +311,16 @@ ${cli} transaction submit \
     --testnet-magic ${testnet_magic} \
     --tx-file ./tmp/tx-4.signed
 
+${cli} transaction submit \
+    --testnet-magic ${testnet_magic} \
+    --tx-file ./tmp/tx-5.signed
+
 #
 
 cp ./tmp/tx-1.signed ./tmp/dao-reference-utxo.signed
 cp ./tmp/tx-2.signed ./tmp/stake-reference-utxo.signed
 cp ./tmp/tx-3.signed ./tmp/mint-reference-utxo.signed
 cp ./tmp/tx-4.signed ./tmp/lock-reference-utxo.signed
+cp ./tmp/tx-5.signed ./tmp/vault-reference-utxo.signed
 
 echo -e "\033[0;32m\nDone! \033[0m"

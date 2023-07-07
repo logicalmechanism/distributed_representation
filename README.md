@@ -83,6 +83,10 @@ Use the `starter` wallet and register the stake contract.
 
 The stake can be delegated with `02_delegateStake.sh` and rewards can be withdrawn with `03_withdrawStakeRewards.json`.
 
+## Vault Contract
+
+- TODO
+
 ## Minting Tokens
 
 Inside the `mint` folder are all the scripts for creating the lock UTxO and minting and burning tokens. There can be any number of lock UTxOs but only one is needed for the happy path.

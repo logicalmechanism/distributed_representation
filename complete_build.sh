@@ -93,15 +93,26 @@ cardano-cli transaction policyid --script-file contracts/lock_contract.plutus > 
 lock_hash=$(cat hashes/lock_contract.hash)
 echo The Lock Contract Hash: ${lock_hash}
 
+echo -e "\033[1;33m Convert Vault Contract \033[0m"
+aiken blueprint apply -o plutus.json -v vault.params "${pid_cbor}" .
+aiken blueprint apply -o plutus.json -v vault.params "${tkn_cbor}" .
+aiken blueprint apply -o plutus.json -v vault.params "${dao_hash_cbor}" .
+aiken blueprint convert -v vault.params > contracts/vault_contract.plutus
+cardano-cli transaction policyid --script-file contracts/vault_contract.plutus > hashes/vault_contract.hash
+
+vault_hash=$(cat hashes/vault_contract.hash)
+echo The Vault Contract Hash: ${vault_hash}
+
 jq -r \
 --arg poolId "$poolId" \
 --arg stake "$stake_hash" \
 --arg lock "$lock_hash" \
+--arg vault "$vault_hash" \
 '.fields[1].map[0].v.fields[0].bytes=$poolId |
 .fields[1].map[1].v.map[0].v.bytes=$stake |
-.fields[1].map[1].v.map[1].v.bytes=$lock' \
-./scripts/data/dao/dao-datum.json | sponge ./scripts/data/dao/dao-datum.json
+.fields[1].map[1].v.map[1].v.bytes=$lock |
+.fields[1].map[1].v.map[2].v.bytes=$vault' \
+./scripts/data/dao/updated-dao-datum.json | sponge ./scripts/data/dao/updated-dao-datum.json
 
-cp ./scripts/data/dao/dao-datum.json ./scripts/data/dao/updated-dao-datum.json
 # end of build
 echo -e "\033[1;32m Building Complete! \033[0m"

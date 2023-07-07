@@ -9,10 +9,12 @@ use assist/addresses
 use assist/data
 use assist/find
 use assist/payout
+use assist/signing
 use assist/values
 use distributed_representation/keys
 use distributed_representation/types.{
-  DAODatum, Delegate, StakePoolData, StakeRedeemer, Withdraw,
+  AddToVault, Contracts, DAODatum, Delegate, StakePoolData, StakeRedeemer,
+  VaultRedeemer, Withdraw,
 }
 
 // random_string is for initilizing different stake keys attached to the same starter token
@@ -39,25 +41,44 @@ validator(
       // handle all withdrawals
       WithdrawFrom(stake_credential) -> {
         // get the vault information
-        let reward_addr =
-          addresses.create_address(
-            stake_pool_data.reward_pkh,
-            stake_pool_data.reward_sc,
-          )
+        expect contract_data: Contracts =
+          types.find_data(dao_datum.data, keys.contracts)
+        let vault_contract = types.find_contract(contract_data, keys.vault)
+        let stake_contract = types.find_contract(contract_data, keys.staking)
+        // build the vault address
+        let vault_addr =
+          addresses.create_script_address(vault_contract, stake_contract)
+        let vault_input = find.input_by_addr(tx.inputs, vault_addr)
+        let vault_value = vault_input.output.value
         let reward = find.stake_reward_by_sc(tx.withdrawals, stake_credential)
+        // add reward amount to the vault value
+        let cont_value =
+          value.add(
+            vault_value,
+            value.ada_policy_id,
+            value.ada_asset_name,
+            reward,
+          )
+        // this should fail for bad redeemer data
+        expect vault_redeemer: VaultRedeemer =
+          find.redeemer_by_ref(tx.redeemers, vault_input.output_reference)
+        let good_redeemer_check =
+          when vault_redeemer is {
+            // must add to vault
+            AddToVault { add_amt: _ } -> True
+            _ -> error @"Bad Redeemer"
+          }
         when redeemer is {
           // can only withdraw
           Withdraw ->
             list.and(
               [
+                // must be calling add to vault
+                good_redeemer_check,
                 // data reference must hold correct token
                 dao_value_check,
                 // reward address must be paid the exact reward
-                payout.at_least(
-                  reward_addr,
-                  value.from_lovelace(reward),
-                  tx.outputs,
-                ),
+                payout.exact(vault_addr, cont_value, tx.outputs),
               ],
             )
           // all else fails
@@ -76,7 +97,12 @@ validator(
               }
             list.and(
               [
-                // this may need to have a multisig from management
+                // valid multisig
+                signing.verify_multisig(
+                  tx.extra_signatories,
+                  dao_datum.management.pkhs,
+                  dao_datum.management.threshold,
+                ),
                 // data reference must hold correct token
                 dao_value_check,
                 // The only cert is for new delegation
