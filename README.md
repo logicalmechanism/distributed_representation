@@ -85,7 +85,15 @@ The stake can be delegated with `02_delegateStake.sh` and rewards can be withdra
 
 ## Vault Contract
 
-- TODO
+Inside the `vault` folder are all the scripts for creating, adding, and subtracting from the vault contract. The vault is design to accumulate rewards and profit for the dao.
+
+Use the `starter` wallet and register the stake contract.
+
+```bash
+./01_createVaultUTxO.sh
+```
+
+The stake can be delegated with `02_addToVault.sh` and rewards can be withdrawn with `03_subFromVault.json`.
 
 ## Minting Tokens
 

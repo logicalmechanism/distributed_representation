@@ -62,8 +62,6 @@ pub type DAORedeemer {
 // staking info
 pub type StakePoolData {
   pool_id: PoolId,
-  reward_pkh: PublicKeyHash,
-  reward_sc: PublicKeyHash,
 }
 
 pub type StakeData {

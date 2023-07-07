@@ -35,6 +35,9 @@ echo -e "\033[1;35m\nLock Script Address: \033[0m"
 echo -e "\n \033[1;32m ${lock_script_address} \033[0m \n";
 ${cli} query utxo --address ${lock_script_address} --testnet-magic ${testnet_magic}
 #
+echo -e "\033[1;35m\nVault Script Address: \033[0m" 
+echo -e "\n \033[1;32m ${vault_script_address} \033[0m \n";
+${cli} query utxo --address ${vault_script_address} --testnet-magic ${testnet_magic}
 
 # Loop through each -wallet folder
 for wallet_folder in wallets/*-wallet; do
