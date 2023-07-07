@@ -1,6 +1,6 @@
 # Distributed Representation For Catalyst Voting
 
-A proof of concept that models a semi-liquid `mint-lock-stake` contract designed to collect lovelace for a snapsnot then vote on the behalf of others as a distributed delegater representative inside Catalyst. The semi-liquid nature allows the purchasing power of the token, given to the delegator, to still be used as if it was lovelace as it represents a one-to-one lovelace connection.
+A proof of concept that models a semi-liquid `mint-lock-stake` DAO designed to collect Lovelace for threshold based actions. The semi-liquid nature allows the purchasing power of the token, given to the delegator, to still be used as if it was lovelace as it represents a one-to-one lovelace connection.
 
 # Building
 
@@ -83,6 +83,18 @@ Use the `starter` wallet and register the stake contract.
 
 The stake can be delegated with `02_delegateStake.sh` and rewards can be withdrawn with `03_withdrawStakeRewards.json`.
 
+## Vault Contract
+
+Inside the `vault` folder are all the scripts for creating, adding, and subtracting from the vault contract. The vault is design to accumulate rewards and profit for the dao.
+
+Use the `starter` wallet and register the stake contract.
+
+```bash
+./01_createVaultUTxO.sh
+```
+
+The stake can be delegated with `02_addToVault.sh` and rewards can be withdrawn with `03_subFromVault.json`.
+
 ## Minting Tokens
 
 Inside the `mint` folder are all the scripts for creating the lock UTxO and minting and burning tokens. There can be any number of lock UTxOs but only one is needed for the happy path.
@@ -90,7 +102,7 @@ Inside the `mint` folder are all the scripts for creating the lock UTxO and mint
 Use the `starter` wallet and start the lock contract.
 
 ```bash
-./01_startLock.sh
+./01_createLockUTxO.sh
 ```
 
 The `delegator` wallet can be used to mint and burn tokens. The tokens are one-to-one with lovelace.
@@ -109,4 +121,4 @@ The delegator may also burn their tokens and get their lovelace back.
 
 This will burn 123456789 "lovelace" from their wallet and will unlock 123456789 lovelace from the lock contract.
 
-Now with many lock contracts, many delegators may place their ada into the lock contract in exchange for the token. The DAO will now control the staking power of the locked lovelace but the delegators control their buying power with their "lovelace" token. After the vote, delegators may return to retrieve their lovelace from the contract and regain control of their staking power.
+Now with many lock contracts, many delegators may place their ada into the lock contract in exchange for the token. The DAO will now control the staking power of the locked lovelace but the delegators control their buying power with their "lovelace" token. At any time, delegators may return to retrieve their lovelace from the contract and regain control of their staking power.

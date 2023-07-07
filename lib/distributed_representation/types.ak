@@ -1,4 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
+
 use aiken/dict.{Dict}
 use aiken/hash.{Blake2b_224, Hash}
 use aiken/transaction/credential.{PoolId, Script, VerificationKey}
@@ -14,6 +15,18 @@ pub type PublicKeyHash =
 // script hash
 pub type ValidatorHash =
   Hash<Blake2b_224, Script>
+
+// Contract types
+pub type Thresholds =
+  Dict<ByteArray, Int>
+
+// find a threshold by some key inside the thresholds dictionary.
+pub fn find_threshold(thresholds: Thresholds, key: ByteArray) -> Int {
+  when dict.get(thresholds, key) is {
+    Some(amt) -> amt
+    None -> error @"Threshold Not Found"
+  }
+}
 
 // Contract types
 pub type Contracts =
@@ -61,8 +74,6 @@ pub type DAORedeemer {
 // staking info
 pub type StakePoolData {
   pool_id: PoolId,
-  reward_pkh: PublicKeyHash,
-  reward_sc: PublicKeyHash,
 }
 
 pub type StakeData {
@@ -78,4 +89,10 @@ pub type StakeRedeemer {
 pub type MintRedeemer {
   MintTokens { mint_amt: Int }
   BurnTokens { burn_amt: Int }
+}
+
+// Vault Information
+pub type VaultRedeemer {
+  AddToVault { add_amt: Int }
+  SubFromVault { sub_amt: Int }
 }
