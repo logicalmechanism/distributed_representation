@@ -142,3 +142,17 @@ This will burn an NFT from the delegator wallet if and only if the delegator has
 ```bash
 ./02_burnNFT.sh
 ```
+
+This NFT generator is great for starter and pointing tokens but the prefix is fixed so it may not serve well with cip 68 / 721 compliant tokens.
+
+## Petition DAO
+
+A user with enough mirror tokens may petition the DAO to update the data. This threshold action is paired with a witness signature. Some amount of members from the multisig group must sign the transaction to verify that the user has logical data. The threshold for the number of witnesses can be set to zero which would allow large contributors to control the DAO Data but not the ability to spend from the vault.
+
+The delegator may petition the dao for a data change if and only if they have enough "lovelace".
+
+```bash
+./04_petitionDAO.sh
+```
+
+The data update is verified by a member of the multsig and is submitted

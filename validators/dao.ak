@@ -8,8 +8,11 @@ use assist/find
 use assist/payout
 use assist/signing
 use assist/values
+use distributed_representation/keys
+use distributed_representation/threshold
 use distributed_representation/types.{
-  DAODatum, DAORedeemer, UpdateDAOData, UpdateManagement,
+  DAODatum, DAORedeemer, Petition, PolicyIds, Thresholds, UpdateData,
+  UpdateManagement,
 }
 
 validator(starter_pid: ByteArray, starter_tkn: ByteArray) {
@@ -56,6 +59,10 @@ validator(starter_pid: ByteArray, starter_tkn: ByteArray) {
                 count.inputs_by_addr(tx.inputs, this_addr, 1),
                 // single script output
                 count.outputs_by_addr(tx.outputs, this_addr, 1),
+                // data is constant
+                datum.data == cont_datum.data,
+                // holding official token
+                starter_token_check,
                 // valid multisig
                 signing.verify_multisig(
                   tx.extra_signatories,
@@ -66,14 +73,10 @@ validator(starter_pid: ByteArray, starter_tkn: ByteArray) {
                 l >= t,
                 // Must have at least one
                 l > 0,
-                // data is constant
-                datum.data == cont_datum.data,
-                // holding official token
-                starter_token_check,
               ],
             )
           }
-          UpdateDAOData { lovelace, direction } -> {
+          UpdateData { lovelace, direction } -> {
             // set a direction for add and remove
             let increase_value = value.from_lovelace(lovelace)
             let cont_value =
@@ -92,16 +95,64 @@ validator(starter_pid: ByteArray, starter_tkn: ByteArray) {
                 count.inputs_by_addr(tx.inputs, this_addr, 1),
                 // single script output
                 count.outputs_by_addr(tx.outputs, this_addr, 1),
+                // data is constant
+                datum.management == cont_datum.management,
+                // holding official token
+                starter_token_check,
                 // valid multisig
                 signing.verify_multisig(
                   tx.extra_signatories,
                   datum.management.pkhs,
                   datum.management.threshold,
                 ),
+              ],
+            )
+          }
+          Petition { lovelace, direction } -> {
+            // set a direction for add and remove
+            let increase_value = value.from_lovelace(lovelace)
+            let cont_value =
+              when direction is {
+                // add
+                0 -> value.merge(this_value, increase_value)
+                // subtract
+                _ -> value.merge(this_value, value.negate(increase_value))
+              }
+            expect threshold_data: Thresholds =
+              types.find_data(datum.data, keys.thresholds)
+            // must have this must mirror token to mint
+            let petition_sig_threshold =
+              types.find_threshold(threshold_data, keys.petition_sig_threshold)
+            let petition_threshold =
+              types.find_threshold(threshold_data, keys.petition_threshold)
+            expect policy_id_data: PolicyIds =
+              types.find_data(datum.data, keys.policy_ids)
+            let mirror_pid =
+              types.find_policy_id(policy_id_data, keys.mirror_pid)
+            // how much they have inside the tx
+            let enough_for_threshold =
+              threshold.count_token_by_pid(tx.inputs, mirror_pid, 0) >= petition_threshold
+            // Only update the data for the house
+            list.and(
+              [
+                // send back to script but a change in the lovelace
+                payout.exact(this_addr, cont_value, tx.outputs),
+                // single script input
+                count.inputs_by_addr(tx.inputs, this_addr, 1),
+                // single script output
+                count.outputs_by_addr(tx.outputs, this_addr, 1),
                 // data is constant
                 datum.management == cont_datum.management,
                 // holding official token
                 starter_token_check,
+                // a multsig member witness
+                signing.verify_multisig(
+                  tx.extra_signatories,
+                  datum.management.pkhs,
+                  petition_sig_threshold,
+                ),
+                // must have enough mirror token
+                enough_for_threshold,
               ],
             )
           }

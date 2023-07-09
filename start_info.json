@@ -1,7 +1,7 @@
 {
   "__comment1__": "This is the starter token for the data reference contract",
-  "starterPid": "d71d15d49f1cb409d0f3863188909af20da621b8e2baa7caae722d0e",
-  "starterTkn": "9877cd0707f500970050fb0216090b080862ad16c421a3212d6f6350602beda6",
+  "starterPid": "c4583218172f305a885d607a7ff5999f8f540acdac7e27f4d94f2519",
+  "starterTkn": "9a6cf3a08ff6707b58e5ca08f62e94c12634e47e8f42b3afa79f0f3046fa4dd5",
   "__comment2__": "This is the initial pool id for staking",
   "poolId": "8ffb4c8e648c0662f2a91157c92feaa95f1a3d2728eaea8257b3d8d9",
   "__comment3__": "A random string to use for stake key generation",
