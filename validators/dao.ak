@@ -121,6 +121,8 @@ validator(starter_pid: ByteArray, starter_tkn: ByteArray) {
             expect threshold_data: Thresholds =
               types.find_data(datum.data, keys.thresholds)
             // must have this must mirror token to mint
+            let petition_sig_threshold =
+              types.find_threshold(threshold_data, keys.petition_sig_threshold)
             let petition_threshold =
               types.find_threshold(threshold_data, keys.petition_threshold)
             expect policy_id_data: PolicyIds =
@@ -147,7 +149,7 @@ validator(starter_pid: ByteArray, starter_tkn: ByteArray) {
                 signing.verify_multisig(
                   tx.extra_signatories,
                   datum.management.pkhs,
-                  1,
+                  petition_sig_threshold,
                 ),
                 // must have enough mirror token
                 enough_for_threshold,
