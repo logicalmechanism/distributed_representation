@@ -58,7 +58,7 @@ lock_min_utxo=$((${lock_lovelace_value} - ${mint_amt}))
 script_address_out="${script_address} + ${lock_min_utxo}"
 echo "Lock OUTPUT:" ${script_address_out}
 
-echo -e "\033[0;36m Gathering NEWM UTxO Information  \033[0m"
+echo -e "\033[0;36m Gathering Delegator UTxO Information  \033[0m"
 ${cli} query utxo \
     --testnet-magic ${testnet_magic} \
     --address ${delegator_address} \

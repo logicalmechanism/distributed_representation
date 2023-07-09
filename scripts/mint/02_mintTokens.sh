@@ -10,7 +10,8 @@ ${cli} query protocol-parameters --testnet-magic ${testnet_magic} --out-file ../
 
 # staking contract
 stake_script_path="../../contracts/stake_contract.plutus"
-# bundle sale contract
+
+# lock sale contract
 script_path="../../contracts/lock_contract.plutus"
 script_address=$(${cli} address build --payment-script-file ${script_path} --stake-script-file ${stake_script_path} --testnet-magic ${testnet_magic})
 
@@ -21,7 +22,7 @@ delegator_pkh=$(${cli} address key-hash --payment-verification-key-file ../walle
 #
 collat_address=$(cat ../wallets/collat-wallet/payment.addr)
 collat_pkh=$(${cli} address key-hash --payment-verification-key-file ../wallets/collat-wallet/payment.vkey)
-#
+
 # the minting script policy
 policy_id=$(cat ../../hashes/mint_contract.hash)
 
