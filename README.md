@@ -71,7 +71,7 @@ Use the `starter` wallet and create the dao UTxO.
 ./01_createDAOUTxO.sh
 ```
 
-The multisig is updated with `02_updateManagement.sh` and the data is updated with `03_updateData.json`.
+The multisig is updated with `02_updateManagement.sh` and the data is updated with `03_updateData.json`. A user with enough mirror tokens may use `04_petitionDAO.sh` to update the data.
 
 ## Stake Contract
 
@@ -83,7 +83,7 @@ Use the `starter` wallet and register the stake contract.
 ./01_registerStake.sh
 ```
 
-The stake can be delegated with `02_delegateStake.sh` and rewards can be withdrawn with `03_withdrawStakeRewards.json`.
+The stake can be delegated with `02_delegateStake.sh` and rewards can be withdrawn with `03_withdrawStakeRewards.json` both of which use the DAO multisig.
 
 ## Vault Contract
 
@@ -95,7 +95,7 @@ Use the `starter` wallet and register the stake contract.
 ./01_createVaultUTxO.sh
 ```
 
-The stake can be delegated with `02_addToVault.sh` and rewards can be withdrawn with `03_subFromVault.json`.
+Anyone can add Funds to the vault with `02_addToVault.sh` but subtracting from the vault with `03_subFromVault.json` requries using the DAO multsig.
 
 ## Minting Tokens
 
@@ -157,4 +157,4 @@ The delegator may petition the dao for a data change if and only if they have en
 ./04_petitionDAO.sh
 ```
 
-The data update is verified by a member of the multsig and is submitted
+The data update is verified by a member of the multsig and is submitted.
