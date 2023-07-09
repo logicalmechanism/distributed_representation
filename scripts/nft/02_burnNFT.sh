@@ -11,10 +11,6 @@ ${cli} query protocol-parameters --testnet-magic ${testnet_magic} --out-file ../
 # staking contract
 stake_script_path="../../contracts/stake_contract.plutus"
 
-# lock sale contract
-script_path="../../contracts/lock_contract.plutus"
-script_address=$(${cli} address build --payment-script-file ${script_path} --stake-script-file ${stake_script_path} --testnet-magic ${testnet_magic})
-
 #
 delegator_address=$(cat ../wallets/delegator-wallet/payment.addr)
 delegator_pkh=$(${cli} address key-hash --payment-verification-key-file ../wallets/delegator-wallet/payment.vkey)
@@ -24,42 +20,9 @@ collat_address=$(cat ../wallets/collat-wallet/payment.addr)
 collat_pkh=$(${cli} address key-hash --payment-verification-key-file ../wallets/collat-wallet/payment.vkey)
 
 # the minting script policy
-policy_id=$(cat ../../hashes/mint_contract.hash)
+policy_id=$(cat ../../hashes/nft_contract.hash)
 
-if [[ $# -eq 0 ]] ; then
-    echo -e "\n \033[0;31m Please Supply A Mint Amount \033[0m \n";
-    exit
-fi
-if [[ ${1} -eq 0 ]] ; then
-    echo -e "\n \033[0;31m Mint Amount Must Be Greater Than Zero \033[0m \n";
-    exit
-fi
-mint_amt=${1}
-
-# get script utxo
-echo -e "\033[0;36m Gathering Script UTxO Information  \033[0m"
-${cli} query utxo \
-    --address ${script_address} \
-    --testnet-magic ${testnet_magic} \
-    --out-file ../tmp/script_utxo.json
-TXNS=$(jq length ../tmp/script_utxo.json)
-if [ "${TXNS}" -eq "0" ]; then
-   echo -e "\n \033[0;31m NO UTxOs Found At ${script_address} \033[0m \n";
-   exit;
-fi
-alltxin=""
-TXIN=$(jq -r --arg alltxin "" 'to_entries[] | .key | . + $alltxin + " --tx-in"' ../tmp/script_utxo.json)
-lock_tx_in=${TXIN::-8}
-
-echo Bank UTxO: $lock_tx_in
-lock_lovelace_value=$(jq -r '.[].value.lovelace' ../tmp/script_utxo.json)
-
-lock_min_utxo=$((${lock_lovelace_value} + ${mint_amt}))
-
-script_address_out="${script_address} + ${lock_min_utxo}"
-echo "Lock OUTPUT:" ${script_address_out}
-
-echo -e "\033[0;36m Gathering delegator UTxO Information  \033[0m"
+echo -e "\033[0;36m Gathering Delegator UTxO Information  \033[0m"
 ${cli} query utxo \
     --testnet-magic ${testnet_magic} \
     --address ${delegator_address} \
@@ -74,21 +37,12 @@ alltxin=""
 TXIN=$(jq -r --arg alltxin "" 'keys[] | . + $alltxin + " --tx-in"' ../tmp/delegator_utxo.json)
 delegator_tx_in=${TXIN::-8}
 
-echo "delegator UTxO:" $delegator_tx_in
-token_name="6c6f76656c616365"
-tokens="${mint_amt} ${policy_id}.${token_name}"
+echo "Delegator UTxO:" $delegator_tx_in
+nft_name=$(cat ../tmp/nft.token)
 
-# update the add_amt
-variable=${mint_amt}; jq --argjson variable "$variable" '.fields[0].int=$variable' ../data/mint/mint-to-lock.json > ../data/mint/mint-to-lock.json-new.json
-mv ../data/mint/mint-to-lock.json-new.json ../data/mint/mint-to-lock.json
+MINT_ASSET="-1 ${policy_id}.${nft_name}"
+echo $MINT_ASSET
 
-min_utxo=$(${cli} transaction calculate-min-required-utxo \
-    --babbage-era \
-    --protocol-params-file ../tmp/protocol.json \
-    --tx-out="${delegator_address} + 5000000 + ${tokens}" | tr -dc '0-9')
-delegator_address_out="${delegator_address} + ${min_utxo} + ${tokens}"
-
-echo "delegator OUTPUT:" ${delegator_address_out}
 #
 # exit
 #
@@ -104,9 +58,12 @@ if [ "${TXNS}" -eq "0" ]; then
 fi
 collat_utxo=$(jq -r 'keys[0]' ../tmp/collat_utxo.json)
 
-script_ref_utxo=$(${cli} transaction txid --tx-file ../tmp/mint-reference-utxo.signed)
-lock_ref_utxo=$(${cli} transaction txid --tx-file ../tmp/lock-reference-utxo.signed)
+script_ref_utxo=$(${cli} transaction txid --tx-file ../tmp/nft-reference-utxo.signed)
 data_ref_utxo=$(${cli} transaction txid --tx-file ../tmp/referenceable-tx.signed )
+
+# update the add_amt
+variable=1; jq --argjson variable "$variable" '.fields[0].int=$variable' ../data/mint/burn-from-lock.json > ../data/mint/burn-from-lock.json-new.json
+mv ../data/mint/burn-from-lock.json-new.json ../data/mint/burn-from-lock.json
 
 # Add metadata to this build function for nfts with data
 echo -e "\033[0;36m Building Tx \033[0m"
@@ -117,20 +74,13 @@ FEE=$(${cli} transaction build \
     --tx-in-collateral="${collat_utxo}" \
     --read-only-tx-in-reference="${data_ref_utxo}#0" \
     --tx-in ${delegator_tx_in} \
-    --tx-in ${lock_tx_in} \
-    --spending-tx-in-reference="${lock_ref_utxo}#1" \
-    --spending-plutus-script-v2 \
-    --spending-reference-tx-in-inline-datum-present \
-    --spending-reference-tx-in-redeemer-file ../data/lock/lock-redeemer.json \
-    --tx-out="${script_address_out}" \
-    --tx-out-inline-datum-file ../data/lock/lock-datum.json \
-    --tx-out="${delegator_address_out}" \
     --required-signer-hash ${collat_pkh} \
-    --mint="${tokens}" \
+    --required-signer-hash ${delegator_pkh} \
+    --mint="${MINT_ASSET}" \
     --mint-tx-in-reference="${script_ref_utxo}#1" \
     --mint-plutus-script-v2 \
     --policy-id="${policy_id}" \
-    --mint-reference-tx-in-redeemer-file ../data/mint/mint-to-lock.json \
+    --mint-reference-tx-in-redeemer-file ../data/mint/burn-from-lock.json \
     --testnet-magic ${testnet_magic})
 
 IFS=':' read -ra VALUE <<< "${FEE}"

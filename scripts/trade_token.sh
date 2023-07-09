@@ -7,22 +7,12 @@ cli=$(cat ./data/path_to_cli.sh)
 testnet_magic=$(cat ./data/testnet.magic)
 
 # Addresses
-sender_path="wallets/buyer2-wallet/"
+sender_path="wallets/delegator-wallet/"
 sender_address=$(cat ${sender_path}payment.addr)
 # receiver_address=$(cat wallets/seller-wallet/payment.addr)
 receiver_address="addr_test1qrvnxkaylr4upwxfxctpxpcumj0fl6fdujdc72j8sgpraa9l4gu9er4t0w7udjvt2pqngddn6q4h8h3uv38p8p9cq82qav4lmp"
 
-data="./tmp/${sender_address}.json"
-lovelace=$(jq '[.[] | .value."lovelace"] | add' ${data})
-echo "Lovelace: " ${lovelace}
-
-
-assets=$(python3 -c "import sys; sys.path.append('../lib/py/'); from getAllTokens import concatenate_values; concatenate_values('${data}')")
-# echo $assets
-if [ -z "$assets" ]; then  # check if the result is an empty string
-    echo "Result is empty. Exiting."
-    # exit 1  # exit the script with an error code
-fi
+assets="1 a2feaa02cd1479886bd36713859ae545009af8a0d383c28a8e34c974.54686544414f0172dba4408dbbd5404b8628da82ed31e8e5b812ae4b429fdad8"
 
 min_utxo=$(${cli} transaction calculate-min-required-utxo \
     --babbage-era \

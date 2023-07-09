@@ -6,8 +6,11 @@ use aiken/transaction/credential.{PoolId, Script, VerificationKey}
 
 // General Types
 
-// the exchange token name
+// token_name == lovelace
 pub const token_name = #"6c6f76656c616365"
+
+// token_prefix == TheDAO
+pub const token_prefix = #"7e44414f"
 
 pub type PublicKeyHash =
   Hash<Blake2b_224, VerificationKey>
