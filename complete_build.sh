@@ -119,7 +119,11 @@ jq -r \
 --arg stake "$stake_hash" \
 --arg lock "$lock_hash" \
 --arg vault "$vault_hash" \
+--arg mpid "$mirror_policy" \
+--arg npid "$nft_policy" \
 '.fields[1].map[0].v.fields[0].bytes=$poolId |
+.fields[1].map[3].v.map[0].v.bytes=$mpid |
+.fields[1].map[3].v.map[1].v.bytes=$npid |
 .fields[1].map[1].v.map[0].v.bytes=$stake |
 .fields[1].map[1].v.map[1].v.bytes=$lock |
 .fields[1].map[1].v.map[2].v.bytes=$vault' \

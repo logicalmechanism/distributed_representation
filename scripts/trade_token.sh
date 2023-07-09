@@ -12,7 +12,7 @@ sender_address=$(cat ${sender_path}payment.addr)
 # receiver_address=$(cat wallets/seller-wallet/payment.addr)
 receiver_address="addr_test1qrvnxkaylr4upwxfxctpxpcumj0fl6fdujdc72j8sgpraa9l4gu9er4t0w7udjvt2pqngddn6q4h8h3uv38p8p9cq82qav4lmp"
 
-assets="1 a2feaa02cd1479886bd36713859ae545009af8a0d383c28a8e34c974.54686544414f0172dba4408dbbd5404b8628da82ed31e8e5b812ae4b429fdad8"
+assets="52432154 79b4b03d86b337231a3a861dba925675bf4edcce3169ad237feb0d14.6c6f76656c616365"
 
 min_utxo=$(${cli} transaction calculate-min-required-utxo \
     --babbage-era \

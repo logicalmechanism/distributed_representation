@@ -1,7 +1,7 @@
 //// This handles tokens for the casino
 
 use aiken/list
-use aiken/transaction.{Input, Mint, ScriptContext}
+use aiken/transaction.{Mint, ScriptContext}
 use aiken/transaction/credential
 use aiken/transaction/value
 use assist/data
@@ -9,18 +9,9 @@ use assist/find
 use assist/minting
 use assist/values
 use distributed_representation/keys
+use distributed_representation/threshold
 use distributed_representation/types.{
   BurnTokens, DAODatum, MintRedeemer, MintTokens, Thresholds,
-}
-
-fn sum_mirror_token(inputs: List<Input>, pid: ByteArray, counter: Int) -> Int {
-  when inputs is {
-    [input, ..rest] -> {
-      let amt = value.quantity_of(input.output.value, pid, types.token_name)
-      sum_mirror_token(rest, pid, counter + amt)
-    }
-    [] -> counter
-  }
 }
 
 validator(
@@ -56,7 +47,7 @@ validator(
       types.find_threshold(threshold_data, keys.mint_threshold)
     // how much they have inside the tx
     let enough_for_threshold =
-      sum_mirror_token(tx.inputs, mirror_pid, 0) >= mint_threshold
+      threshold.count_token_by_pid(tx.inputs, mirror_pid, 0) >= mint_threshold
     // what is being minted or burned in this transaction
     let mint =
       tx.mint

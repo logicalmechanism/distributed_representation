@@ -20,6 +20,18 @@ pub type ValidatorHash =
   Hash<Blake2b_224, Script>
 
 // Contract types
+pub type PolicyIds =
+  Dict<ByteArray, ByteArray>
+
+// find a threshold by some key inside the thresholds dictionary.
+pub fn find_policy_id(policy_ids: PolicyIds, key: ByteArray) -> ByteArray {
+  when dict.get(policy_ids, key) is {
+    Some(policy_id) -> policy_id
+    None -> error @"Policy ID Not Found"
+  }
+}
+
+// Contract types
 pub type Thresholds =
   Dict<ByteArray, Int>
 
@@ -69,7 +81,8 @@ pub type DAODatum {
 // only can remove or update
 pub type DAORedeemer {
   UpdateManagement { lovelace: Int, direction: Int }
-  UpdateDAOData { lovelace: Int, direction: Int }
+  UpdateData { lovelace: Int, direction: Int }
+  Petition { lovelace: Int, direction: Int }
 }
 
 // Stake Information

@@ -142,3 +142,9 @@ This will burn an NFT from the delegator wallet if and only if the delegator has
 ```bash
 ./02_burnNFT.sh
 ```
+
+This NFT generator is great for starter and pointing tokens but the prefix is fixed so it may not serve well with cip 68 / 721 compliant tokens.
+
+## 
+
+- TODO
