@@ -44,7 +44,7 @@ MINT_ASSET="-1 ${policy_id}.${nft_name}"
 echo $MINT_ASSET
 
 #
-exit
+# exit
 #
 echo -e "\033[0;36m Gathering Collateral UTxO Information  \033[0m"
 ${cli} query utxo \
@@ -88,7 +88,7 @@ IFS=' ' read -ra FEE <<< "${VALUE[1]}"
 FEE=${FEE[1]}
 echo -e "\033[1;32m Fee: \033[0m" $FEE
 #
-exit
+# exit
 #
 echo -e "\033[0;36m Signing \033[0m"
 ${cli} transaction sign \

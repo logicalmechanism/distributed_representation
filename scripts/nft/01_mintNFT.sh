@@ -42,7 +42,7 @@ first_utxo=$(jq -r 'keys[0]' ../tmp/delegator_utxo.json)
 string=${first_utxo}
 IFS='#' read -ra array <<< "$string"
 
-prefix_dao="54686544414f"
+prefix_dao="7e44414f"
 
 nft_name=$(python3 -c "import sys; sys.path.append('../../lib/py/'); from getTokenName import token_name; token_name('${array[0]}', ${array[1]}, '${prefix_dao}')")
 
