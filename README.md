@@ -1,6 +1,8 @@
-# Distributed Representation For Catalyst Voting
+# The Mint-Lock-Stake DAO Model With Threshold-based Actions
 
 A proof of concept that models a semi-liquid `mint-lock-stake` DAO designed to collect Lovelace for threshold based actions. The semi-liquid nature allows the purchasing power of the token, given to the delegator, to still be used as if it was lovelace as it represents a one-to-one lovelace connection.
+
+![Mint-Lock-Stake DAO Model](images/complete_flow.png)
 
 # Building
 
