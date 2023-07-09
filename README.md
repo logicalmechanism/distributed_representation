@@ -125,9 +125,20 @@ Now with many lock contracts, many delegators may place their ada into the lock 
 
 # Threshold-Based Actions
 
-Now that users have the "lovelace", they may act on the behalf of the DAO with the available threshold-based actions. Each action requires a certain amount of the "lovelace" to be inside the transaction, proving that the user(s) has/have enough contribution to be able to act.
+Now that users have the "lovelace", they may act on the behalf of the DAO with the available threshold-based actions. Each action requires a certain amount of the "lovelace" to be inside the transaction, proving that the user(s) has/have enough contribution to the DAO to be able to act. This system allows for many different actions to be built and added to the ecosystem without any required hardforks to the original data or mint/lock contract as these contracts depend solely on policy id of "lovelace". But each new action will require an update to the dao data as each action has its own threshold requirement.
 
 ## NFT Minting
 
-An NFT is allowed to be minted or burned if and only if the transaction contains inputs that hold a minimum amount of "lovelace". The user(s) that create this transaction may do as they please with the NFT. Each NFT is prefixed with "TheDAO".
+An NFT is allowed to be minted or burned if and only if the transaction contains inputs that hold a minimum amount of "lovelace". The user(s) that create this transaction may do as they please with the NFT. Each NFT is prefixed with "~DAO".
 
+This will mint an NFT into the delegator wallet if and only if the delegator has enough "lovelace".
+
+```bash
+./01_mintNFT.sh
+```
+
+This will burn an NFT from the delegator wallet if and only if the delegator has enough "lovelace".
+
+```bash
+./02_burnNFT.sh
+```
