@@ -14,13 +14,11 @@ collat_address=$(cat ../wallets/collat-wallet/payment.addr)
 collat_pkh=$(${cli} address key-hash --payment-verification-key-file ../wallets/collat-wallet/payment.vkey)
 
 # starter
-starter_address=$(cat ../wallets/starter-wallet/payment.addr)
-starter_pkh=$(${cli} address key-hash --payment-verification-key-file ../wallets/starter-wallet/payment.vkey)
+delegator_address=$(cat ../wallets/delegator-wallet/payment.addr)
+delegator_pkh=$(${cli} address key-hash --payment-verification-key-file ../wallets/delegator-wallet/payment.vkey)
 
 # multisig
 keeper1_pkh=$(${cli} address key-hash --payment-verification-key-file ../wallets/keeper1-wallet/payment.vkey)
-keeper2_pkh=$(${cli} address key-hash --payment-verification-key-file ../wallets/keeper2-wallet/payment.vkey)
-keeper3_pkh=$(${cli} address key-hash --payment-verification-key-file ../wallets/keeper3-wallet/payment.vkey)
 
 # asset to trade
 policy_id=$(jq -r '.starterPid' ../../start_info.json)
@@ -58,34 +56,33 @@ fi
 min_utxo=${updated_min_utxo}
 
 # update the difference
-variable=${difference}; jq --argjson variable "$variable" '.fields[0].int=$variable' ../data/dao/update-data.json > ../data/dao/update-data-new.json
-mv ../data/dao/update-data-new.json ../data/dao/update-data.json
+variable=${difference}; jq --argjson variable "$variable" '.fields[0].int=$variable' ../data/dao/petition-data.json > ../data/dao/petition-data-new.json
+mv ../data/dao/petition-data-new.json ../data/dao/petition-data.json
 
 # update the direciton, 0 is increase
-variable=${direction}; jq --argjson variable "$variable" '.fields[1].int=$variable' ../data/dao/update-data.json > ../data/dao/update-data-new.json
-    mv ../data/dao/update-data-new.json ../data/dao/update-data.json
-
+variable=${direction}; jq --argjson variable "$variable" '.fields[1].int=$variable' ../data/dao/petition-data.json > ../data/dao/petition-data-new.json
+    mv ../data/dao/petition-data-new.json ../data/dao/petition-data.json
 
 script_address_out="${script_address} + ${min_utxo} + ${asset}"
 echo "Script OUTPUT: "${script_address_out}
 #
-exit
+# exit
 #
 # get deleg utxo
 echo -e "\033[0;36m Gathering UTxO Information  \033[0m"
 ${cli} query utxo \
     --testnet-magic ${testnet_magic} \
-    --address ${starter_address} \
-    --out-file ../tmp/starter_utxo.json
+    --address ${delegator_address} \
+    --out-file ../tmp/delegator_utxo.json
 
-TXNS=$(jq length ../tmp/starter_utxo.json)
+TXNS=$(jq length ../tmp/delegator_utxo.json)
 if [ "${TXNS}" -eq "0" ]; then
-   echo -e "\n \033[0;31m NO UTxOs Found At ${starter_address} \033[0m \n";
+   echo -e "\n \033[0;31m NO UTxOs Found At ${delegator_address} \033[0m \n";
    exit;
 fi
 alltxin=""
-TXIN=$(jq -r --arg alltxin "" 'keys[] | . + $alltxin + " --tx-in"' ../tmp/starter_utxo.json)
-starter_tx_in=${TXIN::-8}
+TXIN=$(jq -r --arg alltxin "" 'keys[] | . + $alltxin + " --tx-in"' ../tmp/delegator_utxo.json)
+delegator_tx_in=${TXIN::-8}
 
 # get script utxo
 echo -e "\033[0;36m Gathering Script UTxO Information  \033[0m"
@@ -123,21 +120,19 @@ echo -e "\033[0;36m Building Tx \033[0m"
 FEE=$(${cli} transaction build \
     --babbage-era \
     --out-file ../tmp/tx.draft \
-    --change-address ${starter_address} \
+    --change-address ${delegator_address} \
     --tx-in-collateral ${collat_tx_in} \
-    --tx-in ${starter_tx_in} \
+    --tx-in ${delegator_tx_in} \
     --tx-in ${script_tx_in} \
     --spending-tx-in-reference="${script_ref_utxo}#1" \
     --spending-plutus-script-v2 \
     --spending-reference-tx-in-inline-datum-present \
-    --spending-reference-tx-in-redeemer-file ../data/dao/update-data.json \
+    --spending-reference-tx-in-redeemer-file ../data/dao/petition-data.json \
     --tx-out="${script_address_out}" \
     --tx-out-inline-datum-file ../data/dao/updated-dao-datum.json \
-    --required-signer-hash ${starter_pkh} \
+    --required-signer-hash ${delegator_pkh} \
     --required-signer-hash ${collat_pkh} \
     --required-signer-hash ${keeper1_pkh} \
-    --required-signer-hash ${keeper2_pkh} \
-    --required-signer-hash ${keeper3_pkh} \
     --testnet-magic ${testnet_magic})
 
 IFS=':' read -ra VALUE <<< "${FEE}"
@@ -149,11 +144,9 @@ echo -e "\033[1;32m Fee: \033[0m" $FEE
 #
 echo -e "\033[0;36m Signing \033[0m"
 ${cli} transaction sign \
-    --signing-key-file ../wallets/starter-wallet/payment.skey \
+    --signing-key-file ../wallets/delegator-wallet/payment.skey \
     --signing-key-file ../wallets/collat-wallet/payment.skey \
     --signing-key-file ../wallets/keeper1-wallet/payment.skey \
-    --signing-key-file ../wallets/keeper2-wallet/payment.skey \
-    --signing-key-file ../wallets/keeper3-wallet/payment.skey \
     --tx-body-file ../tmp/tx.draft \
     --out-file ../tmp/referenceable-tx.signed \
     --testnet-magic ${testnet_magic}
