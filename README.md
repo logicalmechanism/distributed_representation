@@ -1,12 +1,12 @@
-# The Mint-Lock-Stake DAO Model With Threshold-based Actions
+# A Model Mint-Lock-Stake DAO With Threshold-based Actions
 
-A proof of concept that models a semi-liquid `mint-lock-stake` DAO designed to collect Lovelace for threshold based actions. The semi-liquid nature allows the purchasing power of the token, given to the delegator, to still be used as if it was lovelace as it represents a one-to-one lovelace connection.
+A proof of concept that models a semi-liquid `mint-lock-stake` DAO designed to collect Lovelace from users wishing to use the threshold-based actions. The semi-liquid nature allows the purchasing power of lovelace to be maintained as the mirror token represents a one-to-one lovelace connection but the staking power is given to the DAO.
 
 ![Mint-Lock-Stake DAO Model](images/complete_flow.png)
 
 # Building
 
-The dao data contract assumes a starter NFT will be provided at compile time. This information is contained in the `start_info.json` file.
+The dao data contract assumes a starter NFT will be provided at compile time. The uniqueness of this starter token must be guarenteed. The policy id and token name information is contained in the `start_info.json` file. This file also contains the pool id for the stake contract as well as a random hex string.
 
 ```json
 {
@@ -20,7 +20,7 @@ The dao data contract assumes a starter NFT will be provided at compile time. Th
 }
 ```
 
-Update rust and aiken, remove the old build folder, then run the complete build script.
+Be sure to update rust and aiken, remove the old build folder, then run the complete build script. This makes sure the contracts are using the most up-to-date versions at compile time.
 
 ```bash
 rustup update
@@ -31,7 +31,9 @@ rm -fr build/ || true
 
 # Set Up
 
-The `scripts` folder provides a happy path to follow as well as all the wallet and datum / redeemer information. The test scripts will allow the DAO to update the multisig and data, the stake to be delegated and rewarded, and the ability to mint and burn tokens. There can only be one DAO data UTxO by design but there can be many stake and lock contracts, allowing for sharding for greater efficiency.
+The `scripts` folder provides a happy path to follow as well as all the wallet and datum / redeemer information. The test scripts will allow the DAO to update the multisig and data, the stake to be delegated and rewarded, and the ability to mint and burn mirror tokens. The mirror tokens can be used to initate threshold-based actions. 
+
+There can only be one DAO data UTxO by design but there can be many stake and lock UTxOs, allowing for sharding for greater efficiency.
 
 ## Wallets
 
@@ -54,16 +56,21 @@ The balances can be viewed with `./all_balances.sh`.
 
 After the wallets are funded, the reference wallet will need to pay to create the script references for the happy path.
 
+
 ```bash
 ./00_createScriptReferences.sh
 ```
 
 This will auto chain all the script references together.
 
+## Helper Scripts
+
+The balances of the smart contracts and wallets can be viewed with `./all_balances.sh`. The `get_pkh.sh` script can be used to find the pkh of an addressed passed as a variable. The `trade_token.sh` script can be used to send tokens around if the wallets need to be cleaned up.
+
 
 ## Data Contract
 
-Inside the `dao` folder are all the scripts for updating the mutlisig and data. The scripts update from the `data/dao/update-dao-datum.json` file so any changes will need to made to that file for dao updates.
+Inside the `dao` folder are all the scripts for updating the mutlisig and data. The scripts update the data from the `data/dao/update-dao-datum.json` file so any changes will need to made to that file for dao data updates. This is also the file that the `complete_build.sh` file updates at compile time.
 
 Use the `starter` wallet and create the dao UTxO.
 
@@ -75,7 +82,7 @@ The multisig is updated with `02_updateManagement.sh` and the data is updated wi
 
 ## Stake Contract
 
-Inside the `stake` folder are all the scripts for registering, delegating, and withdrawing from the stake contract. The stake contract can only be delegated to the pool id and be rewarded to the reward address inside the dao data.
+Inside the `stake` folder are all the scripts for registering, delegating, and withdrawing from the stake contract. The stake contract can only be delegated to the pool id and be rewarded to the vault contract. The stake contract takes in a random hex string so many different stake contracts can be compiled if required.
 
 Use the `starter` wallet and register the stake contract.
 
@@ -87,7 +94,7 @@ The stake can be delegated with `02_delegateStake.sh` and rewards can be withdra
 
 ## Vault Contract
 
-Inside the `vault` folder are all the scripts for creating, adding, and subtracting from the vault contract. The vault is design to accumulate rewards and profit for the dao.
+Inside the `vault` folder are all the scripts for creating, adding, and subtracting from the vault contract. The vault is design to accumulate rewards from staking and any profit for the dao. The vault is designed to have many vault UTxOs as their only purpose is to accumulate Lovelace.
 
 Use the `starter` wallet and register the stake contract.
 
@@ -97,9 +104,9 @@ Use the `starter` wallet and register the stake contract.
 
 Anyone can add Funds to the vault with `02_addToVault.sh` but subtracting from the vault with `03_subFromVault.json` requries using the DAO multsig.
 
-## Minting Tokens
+## Minting Mirror Tokens
 
-Inside the `mint` folder are all the scripts for creating the lock UTxO and minting and burning tokens. There can be any number of lock UTxOs but only one is needed for the happy path.
+Inside the `mint` folder are all the scripts for creating the lock UTxO and minting and burning mirror tokens. There can be any number of lock UTxOs but only one is needed for the happy path.
 
 Use the `starter` wallet and start the lock contract.
 
@@ -107,9 +114,9 @@ Use the `starter` wallet and start the lock contract.
 ./01_createLockUTxO.sh
 ```
 
-The `delegator` wallet can be used to mint and burn tokens. The tokens are one-to-one with lovelace.
+The `delegator` wallet can be used to mint and burn mirror tokens. The tokens are one-to-one with lovelace.
 
-For example the delegator can mint 123456789 "lovelace" into their wallet and will lock 123456789 lovelace into the lock contract.
+For example, the delegator can mint 123456789 "lovelace" into their wallet and will lock 123456789 lovelace into the lock contract.
 
 ```bash
 ./02_mintTokens.sh 123456789
@@ -158,3 +165,7 @@ The delegator may petition the dao for a data change if and only if they have en
 ```
 
 The data update is verified by a member of the multsig and is submitted.
+
+##
+
+- TODO
