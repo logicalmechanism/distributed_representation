@@ -20,7 +20,19 @@ The DAO data contract assumes the starter token information will be provided at 
 }
 ```
 
-Be sure to update rust and aiken, remove the old build folder, then run the complete build script. This makes sure the contracts are using the most up-to-date versions at compile time.
+### Requirements
+
+The contracts require Rust and Aiken to be installed and on path.
+
+[Installing Rust](https://www.rust-lang.org/tools/install)
+
+[Installing Aiken](https://aiken-lang.org/installation-instructions)
+
+The contracts make heavy use of the [Aiken Assist Library](https://github.com/logicalmechanism/assist).
+
+### Updating And Compiling
+
+Be sure to update Rust and Aiken, remove the old build folder, then run the complete build script. This makes sure the contracts are using the most up-to-date versions at compile time and all contracts are compiled in the correct order.
 
 ```bash
 rustup update
@@ -29,7 +41,9 @@ rm -fr build/ || true
 ./complete_build.sh
 ```
 
-# Set Up
+The compiled Plutus scripts will be in the `contracts` folder and their respective script hashes are in the `hashes` folder. The certifications for the staking contract are in the `certs` folder.
+
+# Script Set Up
 
 The `scripts` folder provides a happy path to follow as well as all the wallet and datum / redeemer information. The test scripts will allow the DAO to update the multisig and data, the stake to be delegated and rewarded, and the ability to mint and burn mirror tokens. The mirror tokens can be used to initate threshold-based actions. 
 
@@ -50,7 +64,8 @@ The happy path assumes there are specific wallets that exist and are funded with
 ./create_wallet.sh wallets/starter-wallet
 ```
 
-The balances can be viewed with `./all_balances.sh`.
+The balances can be viewed with `all_balances.sh`.
+
 
 ## Reference Scripts
 
@@ -64,7 +79,7 @@ This will auto chain all the script references together.
 
 ## Helper Scripts
 
-The balances of the smart contracts and wallets can be viewed with `./all_balances.sh`. The `get_pkh.sh` script can be used to find the pkh of an addressed passed as a variable. The `trade_token.sh` script can be used to send tokens around if the wallets need to be cleaned up.
+The balances of the smart contracts and wallets can be viewed with `all_balances.sh`. The `get_pkh.sh` script can be used to find the pkh of an addressed passed as a variable. The `trade_token.sh` script can be used to send tokens around if the wallets need to be cleaned up.
 
 # Using The DAO
 
