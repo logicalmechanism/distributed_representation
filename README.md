@@ -1,6 +1,6 @@
 # A Model Mint-Lock-Stake DAO With Threshold-based Actions
 
-A proof of concept that models a semi-liquid `mint-lock-stake` DAO designed to collect Lovelace from users wishing to use the DAO's threshold-based actions. The semi-liquid nature allows the purchasing power of lovelace to be maintained by the user as the mirror token represents a one-to-one lovelace connection but the staking power is given to the DAO.
+A proof of concept that models a semi-liquid `mint-lock-stake` DAO designed to collect Lovelace from users wishing to use the DAO's threshold-based actions. The semi-liquid nature allows the purchasing power of Lovelace to be maintained by the user as the mirror token represents a one-to-one Lovelace connection but the staking power is given to the DAO.
 
 ![Mint-Lock-Stake DAO Model](images/complete_flow.png)
 
@@ -28,7 +28,7 @@ The contracts require Rust and Aiken to be installed and on path.
 
 [Installing Aiken](https://aiken-lang.org/installation-instructions)
 
-The contracts make heavy use of the [Aiken Assist Library](https://github.com/logicalmechanism/assist).
+The contracts make heavy use of the [Aiken Assist Library](https://github.com/logicalmechanism/assist). The happy path will require [Python](https://wiki.python.org/moin/BeginnersGuide/Download), [jq](https://jqlang.github.io/jq/download/), and [sponge](https://www.putorius.net/moreutils.html).
 
 ### Updating And Compiling
 
@@ -51,7 +51,7 @@ There can only be one DAO data UTxO by design but there can be many stake and lo
 
 ## Wallets
 
-The happy path assumes there are specific wallets that exist and are funded with enough lovelace to pay for the transaction fees. The `create_wallet.sh` script will auto create the required wallet files given a specific wallet path.
+The happy path assumes there are specific wallets that exist and are funded with enough Lovelace to pay for the transaction fees. The `create_wallet.sh` script will auto create the required wallet files given a specific wallet path.
 
 ```bash
 ./create_wallet.sh wallets/collat-wallet
@@ -69,13 +69,13 @@ The balances can be viewed with `all_balances.sh`.
 
 ## Reference Scripts
 
-After the wallets are funded, the reference wallet will need to pay to create the script references for the happy path.
+After the wallets are funded, the `reference` wallet will need to pay the minimum required Lovelace and the transaction fee to create the script references for the happy path.
 
 ```bash
 ./00_createScriptReferences.sh
 ```
 
-This will auto chain all the script references together.
+This script will auto tx chain all the script references together.
 
 ## Helper Scripts
 
@@ -83,11 +83,11 @@ The balances of the smart contracts and wallets can be viewed with `all_balances
 
 # Using The DAO
 
-This proof-of-concept using a two-teir system where the upper tier is controlled by the multisig DAO and the lower teir is controlled by contributors delegating their Lovelace to the DAO.
+This proof-of-concept DAO using a two-teir system where the upper tier is controlled by a multisig and the lower tier is controlled by contributors delegating their Lovelace to the DAO.
 
 ## Data Contract
 
-Inside the `dao` folder are all the scripts for updating the mutlisig and data. The scripts update the data from the `data/dao/update-dao-datum.json` file so any changes will need to made to that file for DAO data updates. This is also the file that the `complete_build.sh` file updates at compile time.
+Inside the `dao` folder are all the scripts for updating the mutlisig and data. The update scripts use data from the `data/dao/update-dao-datum.json` file so any changes will need to be applied to that file for DAO data updates. This is also the file that the `complete_build.sh` script updates at compile time.
 
 Use the `starter` wallet and create the DAO UTxO.
 
@@ -113,69 +113,69 @@ The stake can be delegated with `02_delegateStake.sh` and rewards can be withdra
 
 Inside the `vault` folder are all the scripts for creating, adding, and subtracting from the vault contract. The vault is design to accumulate rewards from staking and any profit for the DAO. The vault is designed to have many vault UTxOs as their only purpose is to accumulate Lovelace.
 
-Use the `starter` wallet and register the stake contract.
+Use the `starter` wallet and create the vault UTxO.
 
 ```bash
 ./01_createVaultUTxO.sh
 ```
 
-Anyone can add Funds to the vault with `02_addToVault.sh` but subtracting from the vault with `03_subFromVault.json` requries using the DAO multsig.
+Anyone can add Lovelace to the vault with `02_addToVault.sh` but subtracting from the vault with `03_subFromVault.json` requries using the DAO multsig.
 
 ## Minting Mirror Tokens
 
-Inside the `mint` folder are all the scripts for creating the lock UTxO and minting and burning mirror tokens. There can be any number of lock UTxOs but only one is needed for the happy path.
+Inside the `mint` folder are all the scripts for creating the lock UTxO, minting and burning mirror tokens. There can be any number of lock UTxOs but only one is needed for the happy path.
 
-Use the `starter` wallet and start the lock contract.
+Use the `starter` wallet and create the lock UtxO.
 
 ```bash
 ./01_createLockUTxO.sh
 ```
 
-The `delegator` wallet can be used to mint and burn mirror tokens. The tokens are one-to-one with lovelace.
+The `delegator` wallet is used to mint and burn mirror tokens. The tokens are one-to-one with Lovelace.
 
-For example, the delegator can mint 123456789 "lovelace" into their wallet and will lock 123456789 lovelace into the lock contract.
+For example, the delegator can mint 123,456,789 "Lovelace" into their wallet and will lock 123,456,789 Lovelace into the lock contract.
 
 ```bash
 ./02_mintTokens.sh 123456789
 ```
 
-The delegator may also burn their tokens and get their lovelace back.
+The delegator may also burn their tokens and get their Lovelace back.
 
 ```bash
 ./03_burnTokens.sh 123456789
 ```
 
-This will burn 123456789 "lovelace" from their wallet and will unlock 123456789 lovelace from the lock contract.
+This will burn 123,456,789 "Lovelace" from their wallet and will unlock 123,456,789 Lovelace from the lock contract.
 
-Now with many lock contracts, many delegators may place their ada into the lock contract in exchange for the token. The DAO will now control the staking power of the locked lovelace but the delegators control their buying power with their "lovelace" token. At any time, delegators may return to retrieve their lovelace from the contract and regain control of their staking power.
+Now with many lock contracts, many delegators may place their ada into the lock contract in exchange for the mirror token. The DAO will now control the staking power of the locked Lovelace but the delegators control their buying power with their "Lovelace" token. At any time, delegators may return to retrieve their Lovelace from the contract and regain control of their staking power.
 
 # Using Threshold-Based Actions
 
-Now that users have the "lovelace", they may act on the behalf of the DAO with the available threshold-based actions. Each action requires a certain amount of the "lovelace" to be inside the transaction, proving that the user(s) has/have enough contribution to the DAO to be able to act. This system allows for many different actions to be built and added to the ecosystem without any required hardforks to the original data or mint/lock contract as these contracts depend solely on policy id of "lovelace". But each new action will require an update to the DAO data as each action has its own threshold requirement.
+Now that users have the "Lovelace", they may act on the behalf of the DAO with the available threshold-based actions. Each action requires a certain amount of the "Lovelace" to be inside the transaction, proving that the user(s) has/have enough contribution to the DAO to be able to perform the action. This system allows for many different actions to be built and added to the ecosystem without any required hardforks to the original data or mint/lock contract as these action contracts depend solely on policy id of the mirror token, "Lovelace". But each new action will require an update to the DAO data as each action has its own mirror token threshold requirement.
 
 ## NFT Minting
 
-An NFT is allowed to be minted or burned if and only if the transaction contains inputs that hold a minimum amount of "lovelace". The user(s) that create this transaction may do as they please with the NFT. Each NFT is prefixed with "~DAO".
+An NFT is allowed to be minted or burned if and only if the transaction contains inputs that hold a minimum amount of "Lovelace". The user(s) that create this transaction may do as they please with the resultant NFT. In this example, each NFT is prefixed with "~DAO".
 
-This will mint an NFT into the delegator wallet if and only if the delegator has enough "lovelace".
+This will mint an NFT into the delegator wallet if and only if the delegator has enough "Lovelace".
 
 ```bash
 ./01_mintNFT.sh
 ```
 
-This will burn an NFT from the delegator wallet if and only if the delegator has enough "lovelace".
+This will burn an NFT from the delegator wallet if and only if the delegator has enough "Lovelace".
 
 ```bash
 ./02_burnNFT.sh
 ```
 
-This NFT generator is great for starter and pointing tokens but the prefix is fixed so it may not serve well with cip 68 / 721 compliant tokens.
+This NFT generator is great for starter and pointing tokens but the prefix is fixed so it may not serve well with cip 68 / 721 compliant tokens as this minting script is just an example of a threshold-based action.
 
 ## Petition DAO
 
-A user with enough mirror tokens may petition the DAO to update the data. This threshold action is paired with a witness signature. Some amount of members from the multisig group must sign the transaction to verify that the user has logical data. The threshold for the number of witnesses can be set to zero which would allow large contributors to control the DAO Data but not the ability to spend from the vault.
+Petitioning the DAO implies that a user wants to update the DAO data on behalf of the multisig members. To prevent a rich bad actor attack, each petition must be witnessed by the threshold amount of multisig members. For a user to petition they must hold at least the petition threshold amount of the mirror token. The petition is then reviewed and considered for submission, if successful then it will be signed by members of the DAO multisig. This threshold action and witness pairing allows large contributors to control the DAO data but still requiring some form of data verification by trusted members of the DAO.
 
-The delegator may petition the DAO for a data change if and only if they have enough "lovelace".
+The delegator may petition the DAO for a data change if and only if they have enough "Lovelace".
 
 ```bash
 ./04_petitionDAO.sh
