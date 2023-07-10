@@ -3,6 +3,7 @@
 use aiken/dict.{Dict}
 use aiken/hash.{Blake2b_224, Hash}
 use aiken/transaction/credential.{PoolId, Script, VerificationKey}
+use aiken/transaction/value.{Value}
 
 // General Types
 
@@ -111,4 +112,35 @@ pub type MintRedeemer {
 pub type VaultRedeemer {
   AddToVault { add_amt: Int }
   SubFromVault { sub_amt: Int }
+}
+
+// Mediator Information
+pub type TimeData {
+  start: Int,
+  end: Int,
+}
+
+pub fn check_valid_time_data(t: TimeData) -> Bool {
+  t.start <= t.end
+}
+
+// Member type
+pub type MemberData =
+  Dict<PublicKeyHash, Value>
+
+pub fn total_member_value(self: MemberData) -> Value {
+  dict.foldl(self, value.zero(), fn(_k, v, r) { value.merge(r, v) })
+}
+
+pub type MediatorDatum {
+  headcount: Int,
+  members: MemberData,
+  // zero = entry, one = mediation, two = exit
+  state: Int,
+  time_lock: TimeData,
+}
+
+pub type MediatorRedeemer {
+  UpdateMemberValue { member: PublicKeyHash, value: Value }
+  RemoveMemberValue { member: PublicKeyHash }
 }

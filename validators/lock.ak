@@ -1,5 +1,3 @@
-//// This handles locking ada for the casino
-
 use aiken/list
 use aiken/transaction.{ScriptContext, Spend}
 use aiken/transaction/value

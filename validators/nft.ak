@@ -1,5 +1,3 @@
-//// This handles tokens for the casino
-
 use aiken/list
 use aiken/transaction.{Mint, ScriptContext}
 use aiken/transaction/credential

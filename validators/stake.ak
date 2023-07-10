@@ -1,5 +1,3 @@
-//// This handles staking for the casino
-
 use aiken/list
 use aiken/transaction.{Publish, ScriptContext, WithdrawFrom}
 use aiken/transaction/certificate.{CredentialDelegation}

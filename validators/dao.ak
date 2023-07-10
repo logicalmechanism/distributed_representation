@@ -1,5 +1,3 @@
-//// This handles the house for the casino
-
 use aiken/list
 use aiken/transaction.{ScriptContext, Spend}
 use aiken/transaction/value
