@@ -1,26 +1,19 @@
+use aiken/dict
 use aiken/interval
 use aiken/list
 use aiken/transaction.{ScriptContext, Spend}
-use aiken/transaction/credential
 use aiken/transaction/value
 use assist/count
-use assist/data
 use assist/find
 use assist/payout
 use assist/signing
-use assist/values
 use distributed_representation/threshold
 use distributed_representation/types.{
-  AdvanceMediationState, DAODatum, DisputeMediation, EndMediation, MediatorDatum,
+  AdvanceMediationState, DisputeMediation, EndMediation, MediatorDatum,
   MediatorRedeemer, RemoveMemberValue, UpdateMemberValue,
 }
 
-validator(
-  starter_pid: ByteArray,
-  starter_tkn: ByteArray,
-  dao_hash_data: Data,
-  mirror_pid: ByteArray,
-) {
+validator(mirror_pid: ByteArray) {
   fn params(
     datum: MediatorDatum,
     redeemer: MediatorRedeemer,
@@ -87,8 +80,14 @@ validator(
             let validity = tx.validity_range
             let time_lock =
               interval.between(datum.time_lock.start, datum.time_lock.end)
+            // the datum going back to the vault
+            expect cont_datum: MediatorDatum =
+              find.output_datum_by_addr(tx.outputs, this_addr)
             list.and(
               [
+                types.advance_state_check(datum, cont_datum),
+                // can not be in dispute state
+                datum.state != 2,
                 // must hold enough tokens
                 enough_for_threshold,
                 // add ada to the utxo
@@ -104,20 +103,34 @@ validator(
             )
           }
           DisputeMediation -> {
-            // get reference utxo
-            expect dao_hash: ByteArray = dao_hash_data
-            let dao_addr = credential.from_script(dao_hash)
-            let dao_input = find.input_by_addr(tx.reference_inputs, dao_addr)
-            // check if the ref input has the correct starter token
-            let dao_value_check =
-              values.prove_exact_nft(
-                starter_pid,
-                starter_tkn,
-                dao_input.output.value,
-              )
-            // get the reference datum
-            expect dao_datum: DAODatum = data.input_datum(dao_input)
-            True
+            // the datum going back to the vault
+            expect cont_datum: MediatorDatum =
+              find.output_datum_by_addr(tx.outputs, this_addr)
+            let validity = tx.validity_range
+            let time_lock =
+              interval.between(datum.time_lock.start, datum.time_lock.end)
+            list.and(
+              [
+                types.value_change_check(datum.members, cont_datum.members),
+                // must be in dispute state
+                datum.state == 2,
+                // a multsig member witness
+                signing.verify_multisig(
+                  tx.extra_signatories,
+                  dict.keys(datum.members),
+                  datum.sig_threshold,
+                ),
+                // add ada to the utxo
+                payout.exact(this_addr, this_value, tx.outputs),
+                // single script input
+                count.inputs_by_addr(tx.inputs, this_addr, 1),
+                // single script output
+                count.outputs_by_addr(tx.outputs, this_addr, 1),
+                // can be spent
+                interval.intersection(validity, time_lock)
+                  |> interval.is_empty,
+              ],
+            )
           }
           EndMediation -> {
             // how much they have inside the tx

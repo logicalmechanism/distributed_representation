@@ -125,6 +125,17 @@ pub fn check_valid_time_data(t: TimeData) -> Bool {
   t.start <= t.end && t.start + t.delta == t.end
 }
 
+pub fn check_valid_time_change(t1: TimeData, t2: TimeData) -> Bool {
+  list.and(
+    [
+      check_valid_time_data(t1),
+      check_valid_time_data(t2),
+      t1.delta == t2.delta,
+      t1.end + t1.delta == t2.start,
+    ],
+  )
+}
+
 // Member type
 pub type MemberData =
   Dict<PublicKeyHash, Value>
@@ -146,8 +157,10 @@ pub type MediatorDatum {
   // zero = entry, one = mediation, two = dispute, three = exit
   state: Int,
   time_lock: TimeData,
-  // a threshold that is locally defined and not dao defined
+  // a threshold for the mirror token that is locally defined and not dao defined
   threshold: Int,
+  // a sig threshold for mediation but not in the dao data
+  sig_threshold: Int,
 }
 
 pub fn remove_member_check(
@@ -185,6 +198,102 @@ pub fn update_member_check(
       a.threshold == b.threshold,
       a.time_lock == b.time_lock,
       new_members == b.members,
+    ],
+  )
+}
+
+test similar_lists() {
+  let x =
+    [1, 2, 3]
+  let y =
+    [3, 2, 1]
+  list.and(list.map(x, fn(n) { list.has(y, n) }))
+}
+
+test similar_dicts1() {
+  let left_dict =
+    dict.from_list([(#"ab", 100), (#"cd", 200)], bytearray.compare)
+  let right_dict =
+    dict.from_list([(#"ab", 150), (#"cd", 300)], bytearray.compare)
+
+  let result =
+    dict.union_with(
+      left_dict,
+      right_dict,
+      fn(_k, _v1, v2) { Some(v2) },
+      bytearray.compare,
+    )
+  result == right_dict
+}
+
+test similar_dicts2() {
+  let left_dict =
+    dict.from_list([(#"ab", 100), (#"cd", 200)], bytearray.compare)
+  let right_dict =
+    dict.from_list([(#"ad", 150), (#"cd", 300)], bytearray.compare)
+
+  let result =
+    dict.union_with(
+      left_dict,
+      right_dict,
+      fn(_k, _v1, v2) { Some(v2) },
+      bytearray.compare,
+    )
+  result != right_dict
+}
+
+pub fn value_change_check(a: MemberData, b: MemberData) -> Bool {
+  let a_keys = dict.keys(a)
+  let b_keys = dict.keys(b)
+  list.and(
+    [
+      // check if all the keys remain in the member list
+      list.and(list.map(a_keys, fn(k) { list.has(b_keys, k) })),
+      // the values may change but the total remains conserved
+      total_member_value(a) == total_member_value(b),
+    ],
+  )
+}
+
+pub fn advance_state_check(a: MediatorDatum, b: MediatorDatum) -> Bool {
+  let member_check =
+    if a.state == 1 {
+      // this may be cheaper?
+      // let result =
+      //   dict.union_with(
+      //     a.members,
+      //     b.members,
+      //     fn(_k, _v1, v2) { Some(v2) },
+      //     bytearray.compare,
+      //   )
+      // list.and(
+      //   [
+      //     // check if all the keys remain in the member list
+      //     result == b.members,
+      //     // the values may change but the total remains conserved
+      //     total_member_value(a.members) == total_member_value(b.members),
+      //   ],
+      // )
+      // let a_keys = dict.keys(a.members)
+      // let b_keys = dict.keys(b.members)
+      // list.and(
+      //   [
+      //     // check if all the keys remain in the member list
+      //     list.and(list.map(a_keys, fn(k) { list.has(b_keys, k) })),
+      //     // the values may change but the total remains conserved
+      //     total_member_value(a.members) == total_member_value(b.members),
+      //   ],
+      // )
+      value_change_check(a.members, b.members)
+    } else {
+      a.members == b.members
+    }
+  list.and(
+    [
+      a.state + 1 == b.state,
+      a.threshold == b.threshold,
+      check_valid_time_change(a.time_lock, b.time_lock),
+      member_check,
     ],
   )
 }
