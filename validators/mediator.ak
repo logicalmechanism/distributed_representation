@@ -140,15 +140,15 @@ validator(mirror_pid: ByteArray) {
             list.and(
               [
                 // needs to be empty
-                total_current_value == value.zero(),
+                (total_current_value == value.zero())?,
                 // must hold enough tokens
-                enough_for_threshold,
+                enough_for_threshold?,
                 // single script input
                 count.inputs_by_addr(tx.inputs, this_addr, 1),
                 // single script output
                 count.outputs_by_addr(tx.outputs, this_addr, 0),
                 // entry or exit state only
-                list.or([datum.state == 0, datum.state >= 3]),
+                list.or([datum.state == 0, datum.state >= 3])?,
               ],
             )
           }

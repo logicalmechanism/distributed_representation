@@ -195,5 +195,5 @@ A user or the delegator may create the mediation UTxO.
 ./01_createMediationUTxO.sh
 ```
 
-This will start the mediation in the entry phase. Users may join the mediation with `02_entryIntoMediation.sh`, delegators may advanced the mediation with `03_advanceMediation.sh`, users may dispute the mediation with `04_disputeMediation.sh`, and users may exit from the mediation with `04_exitFromMediation.sh`.
+This will start the mediation in the entry phase. Users may join the mediation with `02_entryIntoMediation.sh`, delegators may advanced the mediation with `03_advanceMediation.sh`, users may dispute the mediation with `04_disputeMediation.sh`, and users may exit from the mediation with `04_exitFromMediation.sh`. The mediation UTxO can be removed with `05_endMediation.sh`.
 

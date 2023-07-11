@@ -116,7 +116,7 @@ echo The NFT Contract Hash: ${nft_policy}
 
 echo -e "\033[1;33m\nConvert Mediation Contract \033[0m"
 aiken blueprint apply -o plutus.json -v mediator.params "${mirror_policy_cbor}" .
-aiken blueprint convert -v lock.params > contracts/mediator_contract.plutus
+aiken blueprint convert -v mediator.params > contracts/mediator_contract.plutus
 cardano-cli transaction policyid --script-file contracts/mediator_contract.plutus > hashes/mediator_contract.hash
 
 mediator_hash=$(cat hashes/mediator_contract.hash)

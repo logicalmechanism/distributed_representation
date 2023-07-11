@@ -12,8 +12,8 @@ ${cli} query protocol-parameters --testnet-magic ${testnet_magic} --out-file ../
 # staking contract
 stake_script_path="../../contracts/stake_contract.plutus"
 # bundle sale contract
-lock_script_path="../../contracts/lock_contract.plutus"
-script_address=$(${cli} address build --payment-script-file ${lock_script_path} --stake-script-file ${stake_script_path} --testnet-magic ${testnet_magic})
+mediator_script_path="../../contracts/mediator_contract.plutus"
+script_address=$(${cli} address build --payment-script-file ${mediator_script_path} --stake-script-file ${stake_script_path} --testnet-magic ${testnet_magic})
 
 # seller info
 starter_address=$(cat ../wallets/starter-wallet/payment.addr)
@@ -21,7 +21,7 @@ starter_address=$(cat ../wallets/starter-wallet/payment.addr)
 min_value=$(${cli} transaction calculate-min-required-utxo \
     --babbage-era \
     --protocol-params-file ../tmp/protocol.json \
-    --tx-out-inline-datum-file ../data/lock/lock-datum.json \
+    --tx-out-inline-datum-file ../data/mediator/mediator-datum.json \
     --tx-out="${script_address} + 5000000" | tr -dc '0-9')
 
 script_address_out="${script_address} + ${min_value}"
@@ -53,7 +53,7 @@ FEE=$(${cli} transaction build \
     --change-address ${starter_address} \
     --tx-in ${starter_tx_in} \
     --tx-out="${script_address_out}" \
-    --tx-out-inline-datum-file ../data/lock/lock-datum.json \
+    --tx-out-inline-datum-file ../data/mediator/mediator-datum.json \
     --testnet-magic ${testnet_magic})
 
 IFS=':' read -ra VALUE <<< "${FEE}"

@@ -20,6 +20,10 @@ lock_script_address=$(${cli} address build --payment-script-file ${lock_script_p
 vault_script_path="../contracts/vault_contract.plutus"
 vault_script_address=$(${cli} address build --payment-script-file ${vault_script_path} --stake-script-file ${stake_script_path} --testnet-magic ${testnet_magic})
 
+# mediator contract
+mediator_script_path="../contracts/mediator_contract.plutus"
+mediator_script_address=$(${cli} address build --payment-script-file ${mediator_script_path} --stake-script-file ${stake_script_path} --testnet-magic ${testnet_magic})
+
 
 ${cli} query protocol-parameters --testnet-magic ${testnet_magic} --out-file ./tmp/protocol.json
 ${cli} query tip --testnet-magic ${testnet_magic} | jq
@@ -38,6 +42,10 @@ ${cli} query utxo --address ${lock_script_address} --testnet-magic ${testnet_mag
 echo -e "\033[1;35m\nVault Script Address: \033[0m" 
 echo -e "\n \033[1;32m ${vault_script_address} \033[0m \n";
 ${cli} query utxo --address ${vault_script_address} --testnet-magic ${testnet_magic}
+#
+echo -e "\033[1;35m\nMediator Script Address: \033[0m" 
+echo -e "\n \033[1;32m ${mediator_script_address} \033[0m \n";
+${cli} query utxo --address ${mediator_script_address} --testnet-magic ${testnet_magic}
 
 # Loop through each -wallet folder
 for wallet_folder in wallets/*-wallet; do
