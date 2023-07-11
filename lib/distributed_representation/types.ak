@@ -1,7 +1,6 @@
-///////////////////////////////////////////////////////////////////////////////
-
 use aiken/dict.{Dict}
 use aiken/hash.{Blake2b_224, Hash}
+use aiken/list
 use aiken/transaction/credential.{PoolId, Script, VerificationKey}
 use aiken/transaction/value.{Value}
 
@@ -128,19 +127,51 @@ pub fn check_valid_time_data(t: TimeData) -> Bool {
 pub type MemberData =
   Dict<PublicKeyHash, Value>
 
+// find a data structure by a title inside the DAOData dictionary.
+pub fn find_member(members: MemberData, key: PublicKeyHash) -> Value {
+  when dict.get(members, key) is {
+    Some(value) -> value
+    None -> error @"Member Not Found"
+  }
+}
+
 pub fn total_member_value(self: MemberData) -> Value {
   dict.foldl(self, value.zero(), fn(_k, v, r) { value.merge(r, v) })
 }
 
 pub type MediatorDatum {
-  headcount: Int,
   members: MemberData,
-  // zero = entry, one = mediation, two = exit
+  // zero = entry, one = mediation, two = dispute, three = exit
   state: Int,
   time_lock: TimeData,
+  // a threshold that is locally defined and not dao defined
+  threshold: Int,
+}
+
+pub fn remove_member_check(
+  a: MediatorDatum,
+  b: MediatorDatum,
+  member: PublicKeyHash,
+) -> Bool {
+  let member_value = find_member(b.members, member)
+  list.and(
+    [
+      a.state == b.state,
+      a.threshold == b.threshold,
+      a.time_lock == b.time_lock,
+      member_value == value.zero(),
+    ],
+  )
+}
+
+pub fn update_member_check() {
+  todo
 }
 
 pub type MediatorRedeemer {
   UpdateMemberValue { member: PublicKeyHash, value: Value }
   RemoveMemberValue { member: PublicKeyHash }
+  AdvanceMediationState
+  DisputeMediation
+  EndMediation
 }
