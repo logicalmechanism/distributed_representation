@@ -202,11 +202,19 @@ pub fn update_member_check(
   )
 }
 
-test similar_lists() {
+test similar_lists1() {
   let x =
     [1, 2, 3]
   let y =
     [3, 2, 1]
+  list.and(list.map(x, fn(n) { list.has(y, n) }))
+}
+
+test similar_lists2() {
+  let x =
+    []
+  let y =
+    []
   list.and(list.map(x, fn(n) { list.has(y, n) }))
 }
 

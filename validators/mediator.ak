@@ -119,14 +119,14 @@ validator(mirror_pid: ByteArray) {
                   tx.extra_signatories,
                   dict.keys(datum.members),
                   datum.sig_threshold,
-                ),
+                )?,
                 // add ada to the utxo
                 payout.exact(this_addr, this_value, tx.outputs),
                 // single script input
                 count.inputs_by_addr(tx.inputs, this_addr, 1),
                 // single script output
                 count.outputs_by_addr(tx.outputs, this_addr, 1),
-                // can be spent
+                // can be
                 interval.intersection(validity, time_lock)
                   |> interval.is_empty,
               ],
@@ -158,4 +158,8 @@ validator(mirror_pid: ByteArray) {
       _ -> False
     }
   }
+}
+
+test no_multisig() {
+  signing.verify_multisig([#"acab"], [], 0) == True
 }
