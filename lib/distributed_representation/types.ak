@@ -1,3 +1,4 @@
+use aiken/bytearray
 use aiken/dict.{Dict}
 use aiken/hash.{Blake2b_224, Hash}
 use aiken/list
@@ -117,10 +118,11 @@ pub type VaultRedeemer {
 pub type TimeData {
   start: Int,
   end: Int,
+  delta: Int,
 }
 
 pub fn check_valid_time_data(t: TimeData) -> Bool {
-  t.start <= t.end
+  t.start <= t.end && t.start + t.delta == t.end
 }
 
 // Member type
@@ -164,8 +166,27 @@ pub fn remove_member_check(
   )
 }
 
-pub fn update_member_check() {
-  todo
+pub fn update_member_check(
+  a: MediatorDatum,
+  b: MediatorDatum,
+  member: PublicKeyHash,
+  value: Value,
+) -> Bool {
+  let new_members =
+    dict.insert(
+      self: a.members,
+      key: member,
+      value: value,
+      compare: bytearray.compare,
+    )
+  list.and(
+    [
+      a.state == b.state,
+      a.threshold == b.threshold,
+      a.time_lock == b.time_lock,
+      new_members == b.members,
+    ],
+  )
 }
 
 pub type MediatorRedeemer {
