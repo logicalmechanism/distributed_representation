@@ -182,3 +182,18 @@ The delegator may petition the DAO for a data change if and only if they have en
 ```
 
 The data update is verified by a member of the multsig and is submitted.
+
+## N-Member Mediation
+
+This example action contract does not petition the DAO for a threshold data update as the threshold is locally defined at the UTxO level. This allows users to create a threshold specific mediation UTxO where a member of the DAO will perform an off-chain action as the mediation between the users. This type of threshold-based action doesn't deal with the DAO directly but rather places the trust onto the DAO members to perform an action on behalf of others who may not be part of the DAO. 
+
+The mediation is split up into time locked phases: entry, mediation, dispute, exit. The entry phase allows the users to add their value to the mediation UTxO. In this phase a user may remove their value if they wish too as it is not locked. The mediation phase is when the DAO member acts on behalf of the group to update the member data on the UTxO. No user may leave the mediation phase and only the mediator will be able to progress the state. The dispute phase follows the mediation phase a simple agreement that the mediation phase was correct and may progress. If the mediation phase needs repeating a member may restart it while inside the dispute phase. If there are no changes to be made then the mediaiton ends in the exit phase. Users may remove their value from the mediation UTxO and the mediation UTxO may be consumed when everyone has removed their value.
+
+A user or the delegator may create the mediation UTxO.
+
+```bash
+./01_createMediationUTxO.sh
+```
+
+This will start the mediation in the entry phase. Users may join the mediation with `02_entryIntoMediation.sh`, delegators may advanced the mediation with `03_advanceMediation.sh`, users may dispute the mediation with `04_disputeMediation.sh`, and users may exit from the mediation with `04_exitFromMediation.sh`.
+
